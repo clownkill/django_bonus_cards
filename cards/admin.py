@@ -1,9 +1,7 @@
-import datetime
-
 from django.contrib import admin
 from babel.dates import format_date
 
-from .models import Card
+from .models import Card, CardUsageRecord
 
 
 @admin.register(Card)
@@ -28,7 +26,7 @@ class CardAdmin(admin.ModelAdmin):
         (None, {
             'fields': (
                 ('series', 'number', 'is_active',),
-                ('owner', 'discount_amount',),
+                ('owner', 'discount',),
             )
         }),
         (None, {
@@ -45,8 +43,6 @@ class CardAdmin(admin.ModelAdmin):
     @admin.display(description='Дата окончания действия карты')
     def formatted_finished_at(self, obj):
         if obj.owner:
-            # created_at = obj.created_at
-            # finished_at = created_at + datetime.timedelta(days=30 * int(obj.card_experation))
             return format_date(obj.finished_at(), 'E, d MMMM yyyy', locale='ru')
 
     @admin.display(description='Карта')
@@ -54,3 +50,14 @@ class CardAdmin(admin.ModelAdmin):
         if obj.owner:
             return f'{obj.series}{obj.number}'
 
+
+@admin.register(CardUsageRecord)
+class CardUsageRecordAdmin(admin.ModelAdmin):
+    list_display = ('card', 'place', 'created_at', 'operation_sum', 'discount_amount')
+    list_filter = ('card', 'created_at',)
+    readonly_fields = ('created_at', 'discount_amount',)
+
+    @admin.display(description='Сумма скидки')
+    def discount_amount(self, obj):
+        if obj.created_at:
+            return obj.operation_sum * obj.card.discount / 100

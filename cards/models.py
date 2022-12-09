@@ -33,7 +33,7 @@ class Card(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Владелец'
     )
-    discount_amount = models.PositiveSmallIntegerField(
+    discount = models.PositiveSmallIntegerField(
         'Процент скидки',
         validators=[
             MinValueValidator(1),
@@ -69,3 +69,35 @@ class Card(models.Model):
         return self.created_at + datetime.timedelta(
             days=30 * int(self.card_experation)
         )
+
+
+class CardUsageRecord(models.Model):
+    card = models.ForeignKey(
+        Card,
+        related_name='records',
+        on_delete=models.CASCADE,
+        verbose_name='Карта'
+    )
+    created_at = models.DateTimeField(
+        'Дата использования карты',
+        auto_now_add=True
+    )
+    operation_sum = models.DecimalField(
+        'Сумма операции',
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0.01),]
+    )
+    place = models.CharField(
+        'Место совершения операции',
+        max_length=200
+    )
+
+    class Meta:
+        ordering = '-created_at',
+        verbose_name = 'Запись о использовании карты'
+        verbose_name_plural = 'Записи о использовании карты'
+
+    def __str__(self):
+        return f'{self.card.series}{self.card.number} ' \
+               f'({self.created_at.strftime("%d.%m.%Y %H:%m")})'
