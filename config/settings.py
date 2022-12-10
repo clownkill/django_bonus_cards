@@ -22,6 +22,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'drf_spectacular',
+    'django_q',
 
     'cards.apps.CardsConfig',
 ]
@@ -103,4 +104,10 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'Your Project API',
     'DESCRIPTION': 'Your project description',
     'VERSION': '1.0.0',
+}
+
+Q_CLUSTER = {
+    'name': 'cards',
+    'timeout': 60,
+    'orm': 'default',
 }

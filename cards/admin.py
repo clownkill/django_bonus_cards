@@ -43,7 +43,7 @@ class CardAdmin(admin.ModelAdmin):
     @admin.display(description='Дата окончания действия карты')
     def formatted_finished_at(self, obj):
         if obj.created_at:
-            return format_date(obj.finished_at(), 'E, d MMMM yyyy', locale='ru')
+            return format_date(obj.finished_at, 'E, d MMMM yyyy', locale='ru')
 
     @admin.display(description='Карта')
     def card(self, obj):

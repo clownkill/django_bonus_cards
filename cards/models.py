@@ -58,6 +58,9 @@ class Card(models.Model):
         'Дата создания карты',
         auto_now_add=True
     )
+    finished_at = models.DateTimeField(
+        'Дата окончания действия карты'
+    )
     card_experation = models.ForeignKey(
         ExperationPeriod,
         related_name='cards',
@@ -75,10 +78,13 @@ class Card(models.Model):
     def __str__(self):
         return f'{self.series}{self.number}'
 
-    def finished_at(self):
-        return self.created_at + datetime.timedelta(
+    def save(self, *args, **kwargs):
+        print(self.card_experation.experation_period)
+        self.finished_at = datetime.datetime.now() + datetime.timedelta(
             days=30 * int(self.card_experation.experation_period)
         )
+        super(Card, self).save(*args, **kwargs)
+
 
 
 class CardUsageRecord(models.Model):
