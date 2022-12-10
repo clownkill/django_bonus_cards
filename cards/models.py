@@ -9,13 +9,20 @@ from django.core.validators import (
 )
 
 
-class Card(models.Model):
-    CARD_EXPERATION = (
-        ('1', '1 Месяц'),
-        ('6', '6 Месяцев'),
-        ('12', '12 Месяцев'),
+class ExperationPeriod(models.Model):
+    experation_period = models.PositiveSmallIntegerField(
+        'Срок действия в месяцах',
     )
 
+    class Meta:
+        verbose_name = 'Срок действия'
+        verbose_name_plural = 'Сроки действия'
+
+    def __str__(self):
+        return f'{self.experation_period} месяц (а/ев)'
+
+
+class Card(models.Model):
     series = models.CharField(
         'Серия карты',
         max_length=4,
@@ -31,10 +38,13 @@ class Card(models.Model):
         User,
         related_name='cards',
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
         verbose_name='Владелец'
     )
     discount = models.PositiveSmallIntegerField(
         'Процент скидки',
+        default=5,
         validators=[
             MinValueValidator(1),
             MaxValueValidator(100)
@@ -48,11 +58,11 @@ class Card(models.Model):
         'Дата создания карты',
         auto_now_add=True
     )
-    card_experation = models.CharField(
-        'Срок действия',
-        max_length=15,
-        choices=CARD_EXPERATION,
-        default='1'
+    card_experation = models.ForeignKey(
+        ExperationPeriod,
+        related_name='cards',
+        on_delete=models.CASCADE,
+        verbose_name='Период действия карты'
     )
 
     class Meta:
@@ -63,11 +73,11 @@ class Card(models.Model):
         verbose_name_plural = 'Карты'
 
     def __str__(self):
-        return f'{self.series}{self.number} - {self.owner}'
+        return f'{self.series}{self.number}'
 
     def finished_at(self):
         return self.created_at + datetime.timedelta(
-            days=30 * int(self.card_experation)
+            days=30 * int(self.card_experation.experation_period)
         )
 
 

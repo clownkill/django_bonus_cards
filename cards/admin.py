@@ -1,7 +1,7 @@
 from django.contrib import admin
 from babel.dates import format_date
 
-from .models import Card, CardUsageRecord
+from .models import Card, CardUsageRecord, ExperationPeriod
 
 
 @admin.register(Card)
@@ -42,12 +42,12 @@ class CardAdmin(admin.ModelAdmin):
 
     @admin.display(description='Дата окончания действия карты')
     def formatted_finished_at(self, obj):
-        if obj.owner:
+        if obj.created_at:
             return format_date(obj.finished_at(), 'E, d MMMM yyyy', locale='ru')
 
     @admin.display(description='Карта')
     def card(self, obj):
-        if obj.owner:
+        if obj.created_at:
             return f'{obj.series}{obj.number}'
 
 
@@ -61,3 +61,8 @@ class CardUsageRecordAdmin(admin.ModelAdmin):
     def discount_amount(self, obj):
         if obj.created_at:
             return obj.operation_sum * obj.card.discount / 100
+
+
+@admin.register(ExperationPeriod)
+class ExperationPeriodAdmin(admin.ModelAdmin):
+    pass
