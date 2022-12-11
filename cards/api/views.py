@@ -5,7 +5,7 @@ from decimal import Decimal
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
-from rest_framework.decorators import action, api_view
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -19,7 +19,7 @@ class CardViewSet(viewsets.ModelViewSet):
     serializer_class = CardSerializer
 
     @action(detail=True,
-            methods=['post'],
+            methods=['POST'],
             url_path='<str:place>/<str:sum>',
             authentication_classes=[BasicAuthentication,],
             permission_classes=[IsAuthenticated,])
@@ -33,6 +33,7 @@ class CardViewSet(viewsets.ModelViewSet):
 
 @transaction.atomic
 @api_view(['POST'])
+@permission_classes([IsAdminUser,])
 def generate_cards(request, count, experation):
     for _ in range(count):
         card = Card.objects.create(
@@ -50,4 +51,3 @@ def generate_cards(request, count, experation):
     return Response(
         {'created': True}
     )
-

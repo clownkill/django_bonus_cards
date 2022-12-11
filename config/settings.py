@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django_q',
 
     'cards.apps.CardsConfig',
+    'accounts.apps.AccountsConfig',
 ]
 
 MIDDLEWARE = [
